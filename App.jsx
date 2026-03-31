@@ -22,7 +22,7 @@ const App = () => {
   // };
 
   return (
-    <SafeAreaView style={{ width: '100%', height: '100%' }}>
+    <SafeAreaView style={{ width: '100%', flex: 1 }}>
       {/* <Text style={styles.justTest}>{name} </Text> */}
       {/* <TouchableOpacity style={styles.buttonDesign}>
         <Text
