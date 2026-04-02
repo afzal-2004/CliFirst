@@ -2,6 +2,7 @@
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 // import { BasicScreen } from './components/BasicScreen';
 // import { Login } from './components/AuthScreens';
 // import { useState } from 'react';
@@ -22,9 +23,10 @@ const App = () => {
   // };
 
   return (
-    <SafeAreaView style={{ width: '100%', flex: 1 }}>
-      {/* <Text style={styles.justTest}>{name} </Text> */}
-      {/* <TouchableOpacity style={styles.buttonDesign}>
+    <>
+      <SafeAreaView style={{ width: '100%', flex: 1 }}>
+        {/* <Text style={styles.justTest}>{name} </Text> */}
+        {/* <TouchableOpacity style={styles.buttonDesign}>
         <Text
           onPress={() => Printname()}
           style={{ fontSize: 20, padding: 2, width: '50%' }}
@@ -32,13 +34,16 @@ const App = () => {
           Press me
         </Text>
       </TouchableOpacity> */}
-      {/* <BasicScreen /> */}
-      {/* <SectionListScreen /> */}
-      {/* <Login /> */}
-      {/* <ModalComponent /> */}
-      {/* <Alerting /> */}
-      <GetAllUser />
-    </SafeAreaView>
+        {/* <BasicScreen /> */}
+        {/* <SectionListScreen /> */}
+        {/* <Login /> */}
+        {/* <ModalComponent /> */}
+        {/* <Alerting /> */}
+        <GetAllUser />
+        {/* </Toast> */}
+      </SafeAreaView>
+      <Toast />
+    </>
   );
 };
 

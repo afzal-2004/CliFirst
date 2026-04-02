@@ -1,18 +1,29 @@
-import { Text, TouchableOpacity, View, Modal, TextInput } from 'react-native';
+import {
+  Text,
+  TouchableOpacity,
+  View,
+  Modal,
+  TextInput,
+  ToastAndroid,
+  Alert,
+} from 'react-native';
 import React from 'react';
-import { getUsers } from '../api/userApi';
+import { getUsers, deleteUser, updateUser, createUser } from '../api/userApi';
 import { useState, useEffect } from 'react';
 import { ScrollView } from 'react-native';
 import { styles } from '../styles/User';
+import Toast from 'react-native-toast-message';
 
 const GetAllUser = () => {
   const [UserData, setUserData] = useState([]);
   const [SelectedUser, setSelectedUser] = useState([]);
   const [ShowModal, setShowModal] = useState(false);
+  const [isuserAdd, setisuserAdd] = useState(false);
+
   const fetchUsers = async () => {
     try {
       const res = await getUsers();
-      console.log('This is My User Data ', res.data);
+
       setUserData(res.data);
     } catch (error) {
       console.log(error);
@@ -22,7 +33,37 @@ const GetAllUser = () => {
     fetchUsers();
   }, []);
 
-  console.log('This is The Data Of My  Current Selected user ', SelectedUser);
+  const HandleDelete = async Id => {
+    try {
+      Alert.alert(
+        'Deletion User ',
+        'Are You Sure You Want To Delete This User',
+        [
+          {
+            text: 'OK',
+            onPress: async () => {
+              const res = await deleteUser(Id);
+              ToastAndroid.show('User deleted successfully', ToastAndroid.LONG);
+              // Toast.show({
+              //   type: 'success',
+              //   text1: 'Success',
+              //   text2: 'User deleted successfully',
+              // });
+              setUserData(prev => prev.filter(user => user.id !== Id));
+            },
+          },
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+        ],
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -30,6 +71,14 @@ const GetAllUser = () => {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.titleText}>GetAllUser</Text>
+        <TouchableOpacity
+          style={{ marginVertical: 20 }}
+          onPress={() => {
+            setisuserAdd(true);
+          }}
+        >
+          <Text style={styles?.AddBtn}>Add New user</Text>
+        </TouchableOpacity>
 
         {UserData.map(data => (
           <View key={data?.id} style={styles.card}>
@@ -42,22 +91,30 @@ const GetAllUser = () => {
                 onPress={() => {
                   setSelectedUser(data);
                   setShowModal(true);
+                  setisuserAdd(false);
                 }}
               >
                 <Text style={styles?.updateBtn}>Update</Text>
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  HandleDelete(data?.id);
+                }}
+              >
                 <Text style={styles.cancelBtn}>Delete </Text>
               </TouchableOpacity>
             </View>
           </View>
         ))}
       </ScrollView>
-      <Modal visible={ShowModal} transparent={true}>
+      <Modal visible={ShowModal || isuserAdd} transparent={true}>
         <View style={styles.modalOverlay}>
           <UpdateUserModal
             SelectedUser={SelectedUser}
             setShowModal={setShowModal}
+            fetchUsers={fetchUsers}
+            isuserAdd={isuserAdd}
+            setisuserAdd={setisuserAdd}
           />
         </View>
       </Modal>
@@ -67,7 +124,13 @@ const GetAllUser = () => {
 
 export default GetAllUser;
 
-const UpdateUserModal = ({ SelectedUser, setShowModal }) => {
+const UpdateUserModal = ({
+  SelectedUser,
+  setShowModal,
+  fetchUsers,
+  isuserAdd,
+  setisuserAdd,
+}) => {
   const [UpdateValue, setUpdateValue] = useState({
     id: '',
     name: '',
@@ -75,54 +138,99 @@ const UpdateUserModal = ({ SelectedUser, setShowModal }) => {
     mobileNumber: '',
   });
   useEffect(() => {
-    setUpdateValue(prev => ({
-      ...prev,
-      id: SelectedUser?.id,
-    }));
-  }, [SelectedUser]);
+    if (SelectedUser && !isuserAdd) {
+      setUpdateValue({
+        id: SelectedUser.id,
+        name: SelectedUser.name,
+        email: SelectedUser.email,
+        mobileNumber: SelectedUser.mobileNumber,
+      });
+    }
+  }, [SelectedUser, isuserAdd]);
   const HandleChange = (feild, value) => {
     setUpdateValue(prev => ({
       ...prev,
-      feild: value,
+      [feild]: value,
     }));
   };
+  const uniqueId = Date.now();
+  const handleUpdateUser = async () => {
+    const AddPayload = {
+      ...UpdateValue,
+      id: uniqueId,
+    };
 
-  console.log('This is My User value Fopr Updation ', UpdateValue);
+    console.log(
+      'This is Add Payload I am Sending In backend Side ',
+      AddPayload,
+    );
+
+    try {
+      const res = !isuserAdd
+        ? await updateUser(SelectedUser.id, UpdateValue)
+        : await createUser(AddPayload);
+      console.log('This is The Responce On Product Adding ', res);
+
+      if (res.status == '200' || res.status == '201') {
+        if (!isuserAdd) {
+          ToastAndroid.show('User deleted successfully', ToastAndroid.LONG);
+          setShowModal(false);
+        } else {
+          ToastAndroid.show('User Add successfully', ToastAndroid.LONG);
+          setisuserAdd(false);
+        }
+
+        fetchUsers();
+      }
+    } catch (error) {
+      ToastAndroid.error('Something Went Wrong');
+    }
+  };
   return (
     <View style={styles.modalContainer}>
-      <Text style={styles.title}>Update User</Text>
+      <Text style={styles.title}>
+        {isuserAdd ? 'Add new user' : 'Update User'}
+      </Text>
       <TextInput
-        value={SelectedUser?.email}
-        name={'name'}
+        value={UpdateValue?.name}
+        name="name"
+        placeholder="XYZ"
         style={styles.input}
         placeholderTextColor="#888"
-        onChange={e => HandleChange('name', e.target.value)}
+        onChangeText={text => HandleChange('name', text)}
       />
       <TextInput
-        value={SelectedUser?.name}
+        value={UpdateValue?.email}
         name="email"
+        placeholder="xyz@gmail.com"
         style={styles.input}
         placeholderTextColor="#888"
-        onChange={e => HandleChange('email', e.target.value)}
+        onChangeText={text => HandleChange('email', text)}
       />
       <TextInput
-        value={SelectedUser?.mobileNumber}
+        value={UpdateValue?.mobileNumber}
         name="mobileNumber"
         style={styles.input}
+        placeholder="1234567890"
         placeholderTextColor="#888"
         keyboardType="numeric"
-        onChange={e => HandleChange('mobileNumber', e.target.value)}
+        onChangeText={text => HandleChange('mobileNumber', text)}
       />
       <View style={styles.UpdateButtons}>
         <TouchableOpacity
           style={styles.cancelBtn}
-          onPress={() => setShowModal(false)}
+          onPress={() =>
+            isuserAdd ? setisuserAdd(false) : setShowModal(false)
+          }
         >
           <Text style={styles.cancelText}>Cancel</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.updateBtn}>
-          <Text styles={styles.updateText}>Update</Text>
+        <TouchableOpacity
+          style={styles.updateBtn}
+          onPress={() => handleUpdateUser()}
+        >
+          <Text styles={styles.updateText}>{isuserAdd ? 'Add' : 'Update'}</Text>
         </TouchableOpacity>
       </View>
     </View>

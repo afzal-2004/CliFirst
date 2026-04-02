@@ -121,6 +121,14 @@ export const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     alignItems: 'center',
   },
+  AddBtn: {
+    flex: 1,
+    marginLeft: 10,
+    padding: 12,
+    borderRadius: 10,
+    backgroundColor: '#bd523a',
+    alignItems: 'center',
+  },
 
   cancelText: {
     color: '#333',
