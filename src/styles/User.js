@@ -125,9 +125,13 @@ export const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     padding: 12,
+    width: '50%',
     borderRadius: 10,
     backgroundColor: '#bd523a',
     alignItems: 'center',
+    textAlign: 'center',
+    color: 'white',
+    fontWeight: '700',
   },
 
   cancelText: {
@@ -138,5 +142,25 @@ export const styles = StyleSheet.create({
   updateText: {
     color: '#fff',
     fontWeight: '600',
+  },
+  Inpucontainer: {
+    marginVertical: 20,
+    paddingHorizontal: 16,
+  },
+  Searchinput: {
+    height: 50,
+    borderRadius: 12,
+    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 15,
+    fontSize: 16,
+    color: '#333',
+    // Shadow (iOS)
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+
+    // Shadow (Android)
+    elevation: 3,
   },
 });

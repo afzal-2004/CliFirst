@@ -15,16 +15,19 @@ import { styles } from '../styles/User';
 import Toast from 'react-native-toast-message';
 
 const GetAllUser = () => {
+  const [Search, setSearch] = useState('');
   const [UserData, setUserData] = useState([]);
   const [SelectedUser, setSelectedUser] = useState([]);
   const [ShowModal, setShowModal] = useState(false);
   const [isuserAdd, setisuserAdd] = useState(false);
+  const [filtereddata, setfiltereddata] = useState([]);
 
   const fetchUsers = async () => {
     try {
       const res = await getUsers();
-
-      setUserData(res.data);
+      const Data = res.data;
+      setUserData(Data);
+      setfiltereddata(Data);
     } catch (error) {
       console.log(error);
     }
@@ -32,6 +35,17 @@ const GetAllUser = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    if (Search) {
+      const filterData = UserData.filter(user =>
+        user.name.toLowerCase().includes(Search.toLowerCase()),
+      );
+      setfiltereddata(filterData);
+    } else {
+      setfiltereddata(UserData);
+    }
+  }, [Search, UserData]);
 
   const HandleDelete = async Id => {
     try {
@@ -80,7 +94,16 @@ const GetAllUser = () => {
           <Text style={styles?.AddBtn}>Add New user</Text>
         </TouchableOpacity>
 
-        {UserData.map(data => (
+        <View style={styles.Inpucontainer}>
+          <TextInput
+            placeholder="Enter text..."
+            placeholderTextColor="#999"
+            style={styles.Searchinput}
+            onChangeText={value => setSearch(value)}
+          />
+        </View>
+
+        {filtereddata.map(data => (
           <View key={data?.id} style={styles.card}>
             <Text style={styles.userId}>ID: {data?.id}</Text>
             <Text style={styles.name}>{data?.name}</Text>
