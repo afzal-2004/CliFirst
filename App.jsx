@@ -1,8 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  StatusBar,
+} from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+
 // import { BasicScreen } from './components/BasicScreen';
 // import { Login } from './components/AuthScreens';
 // import { useState } from 'react';
@@ -26,7 +34,11 @@ const App = () => {
 
   return (
     <>
-      <SafeAreaView style={{ width: '100%', flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#a49e9e' }}>
+        <StatusBar
+          // backgroundColor="#000000" // 👈 black background (Android)
+          barStyle="light-content" // 👈 white icons (IMPORTANT)
+        />
         {/* <Text style={styles.justTest}>{name} </Text> */}
         {/* <TouchableOpacity style={styles.buttonDesign}>
           <Text
